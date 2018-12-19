@@ -1,0 +1,30 @@
+
+
+Question：
+	怎样通过一个底层的centos7镜像，然后来安装tengine 呢？
+
+1.	通过docker search centos 来查看centos官方镜像，然后docker   pull  centos
+ 
+
+2.	运行刚刚pull下来的centos7镜像    --name是运行镜像所起的名字
+docker run -itd --name centos7 docker.io/centos
+ 
+
+3.	进入刚刚运行的“裸” centos容器
+docker exec -it 83483770940b /bin/bash
+ 
+
+4.	将tengine安装包上传到镜像（注意：“裸”系统安装lrzsz后，可以直接安装包和安装脚本拖入到系统镜像中，然后通过脚本直接安装tengine）
+ 
+
+5.	通过脚本开始安装tengine，容器内部访问tengine是否正常
+ 
+访问容器内部tengine服务	（说明容器服务已正常）
+ 
+
+6.	我们已经在“裸”centos7系统中安装了tengine服务，并能够被正常访问，为了保存各个已安装的工具和已安装的软件，所以我们需要将centos7现在的容器状态保存，下次我们可以直接启动容器nginx即可被访问。
+ 
+
+最后，我们来运行我们最后打包好的镜像
+ 
+验证：   
