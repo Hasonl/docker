@@ -1,1 +1,90 @@
 # docker
+Docker 安装和使用
+基础环境：  Centos 7                   IP: 192.168.164.224
+关闭服务器上的iptables 防火墙          systemctl stop firewalld.service 
+									   systemctl disable firewalld.service    
+
+First  ： 安装并启动docker 服务
+wget -P /etc/yum.repos.d/ https://download.docker.com/linux/centos/docker-ce.repo
+yum -y install docker
+systemctl start docker 
+Second ： 根据业务search镜像    
+docker search nginx (默认搜索docker pub社区的镜像)
+ 
+docker pull nginx （下载nginx镜像）
+ 
+Third ： 运行pull下来的镜像   
+以80端口访问方式访问nginx     【docker run -it -d -p 80:80 nginx】
+ 
+启动容器后，访问真机的ip+80端口就表示容器的nginx+80端口服务
+ 
+
+Question:   1. 如果需要停止正在使用的容器？    执行： docker  stop 【容器名】
+			2. 如果要将容器删除?               执行： docker    rm 【容器名】
+            3. 如果要删除镜像？                执行： docker   rmi  【镜像名】 
+1）stop正在使用的容器：  容器正常运行时，docker ps -a 中的容器状态status 为UP
+当要停止正在使用的容器时，则状态显示为 Exited，如下图所示：                 
+ 
+2）删除容器
+ 
+
+3）查看镜像并删除镜像        docker  rmi 【镜像名】     i：表示images的缩写
+ 
+
+进入容器,并查看已安装的nginx配置文件
+•	-i : –interactive，交互模式。
+•	-t : –tty，开启一个伪终端。
+•	/bin/bash : 必须写，否则会报错。这是开始伪终端时，进入bash界面，也就是命令行界面。
+docker exec -it 3faee28a8e78 /bin/bash    【3faee28a8e78】表示CONTAINER ID
+ 
+进入容器并查看nginx配置文件
+ 
+宿主机与容器之间的目录挂载
+ 
+将容器中nginx服务的默认配置文件，复制到宿主机中进行修改
+ 
+在宿主机将修改后的nginx配置文件，复制到容器中
+ 
+
+
+docker 通过Dockerfire从默认镜像安装服务
+cd /home/system
+touch Dockerfile
+ 
+通过docker file来创建镜像 ： docker build . -t centos7:ssh
+当我们通过Dockerfile来创建镜像后，生成的镜像名为  centos7:ssh，为了方便将次镜像push到阿里云服务器，操作如下：
+docker tag centos7:ssh  registry.cn-shenzhen.aliyuncs.com/centos_7/centos7:ssh
+docker push registry.cn-shenzhen.aliyuncs.com/centos_7/centos7:ssh
+
+ 
+
+Docker 启动容器并进入容器
+docker run -exec -it -p 1122:80 registry.cn-shenzhen.aliyuncs.com/centos_7/tengine /bin/bash
+
+docker run -itd -p 1122:80 registry.cn-shenzhen.aliyuncs.com/centos_7/tengine 
+docker exec -it 999a5728f7c4 /bin/bash   ___>进入容器，输入exit容器不会停止
+
+
+
+Docker 创建Dockerfile
+ 
+docker build . -t nginx:index   通过dockerfile创建一个镜像，并将镜像命名为nginx:index
+
+docker run -itd -p 1234:80 nginx:index      运行新建的容器
+
+
+本目录的index.html已做更改
+ADD 操作：   将本目录下的index.html文件添加到容器中
+ 
+
+镜像导出导入
+导出： docker save -o nexus3.tar docker.io/sonatype/nexus3       
+nexus3.tar ：  打包后的文件      
+docker.io/sonatype/nexus3：  原镜像
+ 
+导入：       docker load < nexus3.tar
+ 
+ 
+ 
+
+
