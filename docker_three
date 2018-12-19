@@ -1,0 +1,82 @@
+
+使用Dockerfile来安装常用基础软件
+
+ 
+
+Dockerfile 一般位于构建上下文的根目录下，也可以通过 -f 指定该文件的位置：
+docker build -f /path/to/a/Dockerfile .             
+
+镜像标签【构建时，还可以通过-t参数指定构建成镜像的仓库、标签】
+docker build -t nginx/v3 .
+例如：   docker build -t  docker.zyxr.com/rttx_apollo/oa-attendance:$date  .            
+         docker push docker.zyxr.com/rttx_apollo/oa-attendance:$date
+一个简单的Dockerfile
+vi Dockerfile
+
+FROM nginx       
+RUN echo '<h1>Hello, Docker!</h1>' > /usr/share/nginx/html/index.html
+docker build -t nginx:v1 .    #打docker镜像， -t 是打一个标签名称
+
+docker images
+REPOSITORY                      TAG                 IMAGE ID            CREATED             SIZE
+nginx                           v1                  8c92471de2cc        6 minutes ago       108.6 MB
+
+docker run  --name docker_nginx_v1   -itd -p 80:80 nginx:v1
+访问 服务器80端口会映射到docker容器的80端口
+
+ 
+
+进入到容器内部修改
+
+docker exec -it nginx_v1   /bin/bash
+root@3729b97e8226:/# 
+echo '<h1>Hello, Docker neo!</h1>' >  /usr/share/nginx/html/index.html
+
+
+
+
+
+
+
+[root@localhost centos+dockerfile]# cat Dockerfile 
+FROM docker.io/centos
+MAINTAINER hason
+LABEL Discription="centos7 install nginx version=1.0"
+RUN yum -y install  pcre pcre-devel zlib zlib-devel openssl openssl-devel libssl-dev vim lrzsz net-tools wget
+
+ 
+ 
+ 
+
+
+
+
+Pro  【生产】dockerfile
+
+ 
+
+镜像构建脚本：
+[root@jenkins oa-attendance]# cat build.sh 
+#!/bin/bash
+unalias cp
+cp -f /usr/local/tomcat.jenkins/jenkins/workspace/oa-attendance/oa-attendance-web/target/oa-attendance-web-1.0.0-SNAPSHOT.jar .
+date=`date +%Y%m%d-%H%M%S`
+docker build -t docker.zyxr.com/rttx_apollo/oa-attendance:$date .
+docker push docker.zyxr.com/rttx_apollo/oa-attendance:$date
+
+
+
+Dockerfile文件
+[root@jenkins oa-attendance]# cat Dockerfile 
+FROM docker.hason.com/base/oracle_jdk8:latest
+MAINTAINER "hai@hason.com"
+WORKDIR /usr/local
+ADD oa-attendance-web-1.0.0-SNAPSHOT.jar /opt/oa-attendance-web-1.0.0-SNAPSHOT.jar
+RUN ln -sf /dev/stdout /var/log/some-log.log
+ENTRYPOINT ["java","-Xmx2048M","-Denv=DEV","-Dapollo.cluster=PRO","-Dnamespace=TEST1.pubConfig","-Ddev_meta=http://apollo-exserver:8080","-jar","/opt/oa-attendance-web-1.0.0-SNAPSHOT.jar"]
+
+
+记得更换   docker.hason.com  这个仓库地址域名
+
+
+
