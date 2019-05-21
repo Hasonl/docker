@@ -1,4 +1,4 @@
-Pro  【生产】dockerfile
+Pro dockerfile
 
  
 
@@ -8,14 +8,14 @@ Pro  【生产】dockerfile
 unalias cp
 cp -f /usr/local/tomcat.jenkins/jenkins/workspace/oa-attendance/oa-attendance-web/target/oa-attendance-web-1.0.0-SNAPSHOT.jar .
 date=`date +%Y%m%d-%H%M%S`
-docker build -t docker.zyxr.com/rttx_apollo/oa-attendance:$date .
-docker push docker.zyxr.com/rttx_apollo/oa-attendance:$date
+docker build -t hason.docker.com/rttx_apollo/oa-attendance:$date .
+docker push hason.docker.com/rttx_apollo/oa-attendance:$date
 
 
 
 Dockerfile文件
 [root@jenkins oa-attendance]# cat Dockerfile 
-FROM docker.hason.com/base/oracle_jdk8:latest
+FROM hason.docker.com/base/oracle_jdk8:latest
 MAINTAINER "hai@hason.com"
 WORKDIR /usr/local
 ADD oa-attendance-web-1.0.0-SNAPSHOT.jar /opt/oa-attendance-web-1.0.0-SNAPSHOT.jar
@@ -23,4 +23,6 @@ RUN ln -sf /dev/stdout /var/log/some-log.log
 ENTRYPOINT ["java","-Xmx2048M","-Denv=DEV","-Dapollo.cluster=PRO","-Dnamespace=TEST1.pubConfig","-Ddev_meta=http://apollo-exserver:8080","-jar","/opt/oa-attendance-web-1.0.0-SNAPSHOT.jar"]
 
 
-记得更换   docker.hason.com  这个仓库地址域名
+Remeber to change your image domain url: 
+example: 
+         hason.docker.com 
