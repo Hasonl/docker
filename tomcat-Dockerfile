@@ -1,0 +1,26 @@
+Attention Please:
+   If you don't want to download software in  Dockerfile.You should be download software to Centos Server by yourself,
+   and then setup Dockerfile.
+
+
+First:   Download JDK and Tomcat-$version.tar.gz
+Second:  Install jdk and tar -zxvf Tomcat-$version.tar.gz 
+Third：  Setup Dockerfile
+
+
+[root@localhost tomcat]# cat Dockerfile 
+FROM centos
+MAINTAINER xiao.hai
+RUN echo "Asia/Shanghai" > /etc/timezone
+ADD jdk1.8.0_201 /usr/local/jdk
+ENV JAVA_HOME /usr/local/jdk
+ENV CATALINA_HOME /usr/local/tomcat
+ENV PATH $CATALINA_HOME/bin:$PATH
+RUN mkdir -p "$CATALINA_HOME"
+ADD apache-tomcat-8.5.38 /usr/local/tomcat 
+WORKDIR /usr/local/tomcat/
+EXPOSE 8080
+CMD ["catalina.sh", "run"]
+
+
+At the last:   docker build -t tomcat .
