@@ -1,0 +1,85 @@
+ 
+1.docker container run -d --name nginx03 --memory="500m" --memory-swap="600m" --oom-kill-disable nginx
+上述设置允许容器最多使用500M内存和600M的SWAP，并禁用OOM Killer。使用 docker stats 查看当前容器内存限制及使用
+
+docker stats --no-stream nginx01
+  
+
+
+2.docker container run -d --name nginx01 -e TEST=123 -h nginx01 nginx
+上述是设置容器启动后的主机名为nginx01
+
+
+
+3. docker 镜像打包命令：
+docker image save changyonggongju:v1 >./gongju.tar       将changyonggongju:v1 镜像打包成gongju.tar
+docker load -i gongju.tar                                 镜像导入
+
+
+4.docker volume create hason-test     创建一个共享可挂载卷
+
+*多个运行容器之间共享数据。
+*当容器停止或被移除时，该卷依然存在。
+*多个容器可以同时挂载相同的卷。
+*当明确删除卷时，卷才会被删除。
+
+1）docker volume inspect hason-test 查看卷属性（路径和卷名）
+
+例如： docker container run -d --name=nginx-vol -v hason-test:/usr/share/nginx/html nginx   将hason-test卷挂到容器
+
+清理:
+		docker container stop nginx-vol
+		docker container rm nginx-vol
+		docker volume rm nginx-vol       
+
+
+2)也可以使用NFS外部存储，例如：
+		docker volume create --driver local \
+    --opt type=nfs \
+    --opt o=addr=192.168.0.10,rw \
+    --opt device=:/opt/container_data \
+    nginx-vol
+
+常用命令：
+查看容器资源使用率（cpu、内存、IO）  docker stats --no-stream 6ce2127a2539
+显示一个容器运行的进程       		 docker container top 6ce2127a2539
+列出所有容器，包括已停止的   		 docker container ls
+查看一个或多个容器详细信息   		 docker inspect centos7_nginx
+根据容器id查看容器主机名     		 docker container exec 6ce2127a2539 hostname
+查看容器进程                 		 docker container top 6ce2127a2539
+查看容器网络                 		 docker network ls
+查看容器端口映射关系     			 docker container port 6ce2127a2539
+
+查看容器的ip地址             
+[root@localhost ~]# docker container inspect -f '{{.NetworkSettings.IPAddress}}' 6ce2127a2539
+172.17.0.2
+
+拷贝文件或目录到一个容器      
+[root@localhost ~]# touch 123.txt 
+[root@localhost ~]# docker container cp 123.txt nginx01:/opt
+[root@localhost ~]# docker container exec nginx01 ls /opt             这条命令相当于进入容器并ls /opt目录
+
+
+容器网络访问原理：
+Docker启动后会先创建一个docker0的网桥，当创建容器时，Docker使用veth pair创建一对虚拟网卡，一端放到新创建的容器中，并重命名eth0，另一端放到宿主机上，
+以veth+随机7个字符串命名，并将这个网络设备加入到docker0网桥中，网桥自动为容器分配一个IP，并设置docker0的IP为容器默认网关。同时在iptables添加SNAT转
+换网络段IP默认网段，以便容器访问外网。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
